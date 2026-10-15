@@ -1,11 +1,8 @@
 
 """Blood donation management system demonstration."""
 
-import os
 import tempfile
 from datetime import date, timedelta
-
-OFFICER_PASSWORD = "bloodbank-demo"
 
 donors = []
 
@@ -37,7 +34,8 @@ def register_donor(
     notes=None,
 ):
     """Register a donor after checking the age and blood group."""
-    assert blood_group in stock, "Unknown blood group"
+    if blood_group not in stock:
+        raise ValueError("Unknown blood group")
 
     if notes is None:
         notes = []
@@ -109,15 +107,25 @@ def low_stock(threshold=2):
 
 
 def donor_sheet_path():
-    """Return a temporary path for a donor sheet."""
-    # Security-related change will be handled in the Bandit stage.
-    return tempfile.mktemp(suffix=".csv")
+    """Create a temporary CSV file and return its path."""
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        suffix=".csv",
+        delete=False,
+        encoding="utf-8",
+    ) as temporary_file:
+        return temporary_file.name
 
 
 def notify_donors(phone_list):
-    """Run the existing donor notification helper."""
-    # Security-related change will be handled in the Bandit stage.
-    os.system("send-sms " + " ".join(phone_list))
+    """Require an SMS provider before sending notifications."""
+    if not phone_list:
+        return
+
+    raise NotImplementedError(
+        "SMS sending is not configured. "
+        "Integrate an approved SMS provider first."
+    )
 
 
 def main():
